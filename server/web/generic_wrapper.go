@@ -22,7 +22,7 @@ import (
 // bizFunc is a function that wraps a business logic function with a context and parameter extraction function.
 type bizFunc[T any] func(ctx *context.Context, param T) (any, error)
 
-// extractFunc is a function that extracts parameters from the context.
+// extractFunc is a function that extracts parameters from the context. 11
 type extractFunc[T any] func(ctx *context.Context) (params T, err error)
 
 // WrapperFromJson  for handling JSON in request's body.
