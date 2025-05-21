@@ -71,7 +71,7 @@ jobs:
       - name: Start Docker Compose on macOS
         if: runner.os == 'macOS'
         run: |
-          docker compose -f scripts/ci_test_docker_compose.yaml up -d
+          docker-compose -f scripts/ci_test_docker_compose.yaml up -d
 
 
       - name: Run ORM tests on sqlite3
