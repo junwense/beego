@@ -54,17 +54,16 @@ jobs:
         run: |
           choco install docker-desktop
 
-      - name: Start Docker Desktop on macOS
-        if: runner.os == 'macOS'
-        run: |
-          open --background -a Docker
-          while ! docker system info > /dev/null 2>&1; do sleep 1; done
-
       - name: Start Docker Desktop on Windows
         if: runner.os == 'Windows'
         run: |
           Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
           Start-Sleep -Seconds 15 
+
+      - name: Check Docker and Compose versions
+        run: |
+          docker --version
+          docker compose version
 
       - name: Start Docker Compose
         run: |
