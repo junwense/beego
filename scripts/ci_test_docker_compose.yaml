@@ -47,12 +47,27 @@
       ports:
         - "2379:2379"
         - "2380:2380"
+#      volumes:
+#        - /etcd-data:/etcd-data
       command: >
+        /usr/local/bin/etcd
+        --name s1
+        --data-dir /etcd-data
+        --listen-client-urls http://0.0.0.0:2379
+        --advertise-client-urls http://0.0.0.0:2379
+        --listen-peer-urls http://0.0.0.0:2380
+        --initial-advertise-peer-urls http://0.0.0.0:2380
+        --initial-cluster s1=http://0.0.0.0:2380
+        --initial-cluster-token tkn
+        --initial-cluster-state new
+      entrypoint: >
         sh -c "
-        etcdctl put current.float 1.23
-        && etcdctl put current.bool true
-        && etcdctl put current.int 11
-        && etcdctl put current.string hello
-        && etcdctl put current.serialize.name test
-        && etcdctl put sub.sub.key1 sub.sub.key
+        /usr/local/bin/etcd &
+        sleep 5 &&
+        etcdctl put current.float 1.23 &&
+        etcdctl put current.bool true &&
+        etcdctl put current.int 11 &&
+        etcdctl put current.string hello &&
+        etcdctl put current.serialize.name test &&
+        etcdctl put sub.sub.key1 sub.sub.key
         "

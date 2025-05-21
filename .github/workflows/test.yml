@@ -44,6 +44,38 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Docker and Docker Compose on Ubuntu
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
+
+      - name: Install Docker on macOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask docker
+
+      - name: Install Docker on Windows
+        if: runner.os == 'Windows'
+        run: |
+          choco install docker-desktop
+
+      - name: Start Docker service on Ubuntu
+        if: runner.os == 'Linux'
+        run: sudo service docker start
+
+      - name: Start Docker Desktop on macOS
+        if: runner.os == 'macOS'
+        run: |
+          open --background -a Docker
+          while ! docker system info > /dev/null 2>&1; do sleep 1; done
+
+      - name: Start Docker Desktop on Windows
+        if: runner.os == 'Windows'
+        run: |
+          Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+          Start-Sleep -Seconds 15 
+
       - name: Start Docker Compose
         run: |
           docker compose -f scripts/ci_test_docker_compose.yaml up -d
