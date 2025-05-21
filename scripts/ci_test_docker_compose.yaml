@@ -45,14 +45,14 @@
       ports:
         - "2379:2379"
         - "2380:2380"
-      volumes:
-        - type: bind
-          source: ./etcd-data.tmp
-          target: /etcd-data
+#      volumes:
+#        - type: bind
+#          source: ./etcd-data.tmp
+#          target: /etcd-data
       command:
         - /usr/local/bin/etcd
         - --name=s1
-        - --data-dir=/etcd-data
+        #- --data-dir=/etcd-data
         - --listen-client-urls=http://0.0.0.0:2379
         - --advertise-client-urls=http://0.0.0.0:2379
         - --listen-peer-urls=http://0.0.0.0:2380
