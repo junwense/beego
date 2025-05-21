@@ -49,8 +49,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install docker
-          brew install colima
-          colima start  --cpu=2 --memory=8
+          open --background -a Docker
 
       - name: Install Docker on Windows
         if: runner.os == 'Windows'
