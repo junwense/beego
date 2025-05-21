@@ -1,0 +1,82 @@
+name: Test
+on:
+  push:
+    branches:
+      - master
+      - develop
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/test.yml"
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master
+      - develop
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - ".github/workflows/test.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version: ["1.24.2"]
+        mount: ["/tmp"]
+        os: [ubuntu-latest, macos-latest,windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Checkout codebase
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Start Docker Compose
+        run: |
+          docker-compose -f ./scripts/ci_test_docker_compose.yaml up -d
+
+      - name: Run ORM tests on sqlite3
+        env:
+          GOPATH: /home/runner/go
+          ORM_DRIVER: sqlite3
+          ORM_SOURCE: ${{ matrix.mount }}/sqlite3/orm_test.db
+        run: |
+          mkdir -p ${{ matrix.mount }}/sqlite3 && touch ${{ matrix.mount }}/sqlite3/orm_test.db
+          go test -coverprofile=coverage_sqlite3.txt -covermode=atomic $(go list ./... | grep client/orm)
+
+      - name: Run ORM tests on postgres
+        env:
+          GOPATH: /home/runner/go
+          ORM_DRIVER: postgres
+          #ORM_SOURCE: host=localhost port=${{ job.services.postgres.ports['5432'] }} user=postgres password=postgres dbname=orm_test sslmode=disable
+          ORM_SOURCE: host=localhost port=5432 user=postgres password=postgres dbname=orm_test sslmode=disable
+        run: |
+          go test -coverprofile=coverage_postgres.txt -covermode=atomic $(go list ./... | grep client/orm)
+
+      - name: Run tests on mysql
+        env:
+          GOPATH: /home/runner/go
+          ORM_DRIVER: mysql
+          ORM_SOURCE: root:root@/orm_test?charset=utf8
+        run: |
+          go test -coverprofile=coverage.txt -covermode=atomic ./...
+
+      - name: Stop Docker Compose
+        run: docker-compose -f ./scripts/ci_test_docker_compose.yaml down
+
+      - name: Upload codecov
+        env:
+          CODECOV_TOKEN: 4f4bc484-32a8-43b7-9f48-20966bd48ceb
+        run: bash <(curl -s https://codecov.io/bash)

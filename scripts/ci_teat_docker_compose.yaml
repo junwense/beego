@@ -1,0 +1,58 @@
+  version: '3.8'
+  services:
+    redis:
+      image: redis:latest
+      ports:
+        - 6379:6379
+    memcached:
+      image: memcached:latest
+      ports:
+        - 11211:11211
+    ssdb:
+      image: tsl0922/ssdb
+      environment:
+        SSDB_PORT: 8888
+      ports:
+        - "8888:8888"
+    postgres:
+      image: postgres:latest
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: orm_test
+      ports:
+        - "5432:5432"
+      healthcheck:
+        test: ["CMD", "pg_isready"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+    mysql:
+      image: mysql:latest
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: orm_test
+      ports:
+        - "3306:3306"
+      healthcheck:
+        test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+    etcd:
+      image: gcr.io/etcd-development/etcd:v3.4.16
+      container_name: etcd-gcr-v3.4.16
+      environment:
+        - ALLOW_NONE_AUTHENTICATION=yes
+      ports:
+        - "2379:2379"
+        - "2380:2380"
+      command: >
+        sh -c "
+        etcdctl put current.float 1.23
+        && etcdctl put current.bool true
+        && etcdctl put current.int 11
+        && etcdctl put current.string hello
+        && etcdctl put current.serialize.name test
+        && etcdctl put sub.sub.key1 sub.sub.key
+        "
