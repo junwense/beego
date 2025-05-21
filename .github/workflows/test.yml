@@ -60,14 +60,16 @@ jobs:
           Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
           Start-Sleep -Seconds 15 
 
-      - name: Check Docker and Compose versions
+      - name: Start Docker Compose on macOS
+        if: runner.os == 'macOS'
         run: |
-          docker --version
-          docker compose version
+          docker-compose -f scripts/ci_test_docker_compose.yaml up -d
 
       - name: Start Docker Compose
+        if: runner.os == 'Linux' || runner.os == 'Windows'
         run: |
           docker compose -f scripts/ci_test_docker_compose.yaml up -d
+
 
       - name: Run ORM tests on sqlite3
         env:

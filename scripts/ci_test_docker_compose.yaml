@@ -42,32 +42,45 @@
     etcd:
       image: gcr.io/etcd-development/etcd:v3.4.16
       container_name: etcd-gcr-v3.4.16
-      environment:
-        - ALLOW_NONE_AUTHENTICATION=yes
       ports:
         - "2379:2379"
         - "2380:2380"
-#      volumes:
-#        - /etcd-data:/etcd-data
-      command: >
-        /usr/local/bin/etcd
-        --name s1
-        --data-dir /etcd-data
-        --listen-client-urls http://0.0.0.0:2379
-        --advertise-client-urls http://0.0.0.0:2379
-        --listen-peer-urls http://0.0.0.0:2380
-        --initial-advertise-peer-urls http://0.0.0.0:2380
-        --initial-cluster s1=http://0.0.0.0:2380
-        --initial-cluster-token tkn
-        --initial-cluster-state new
-      entrypoint: >
-        sh -c "
-        /usr/local/bin/etcd &
-        sleep 5 &&
-        etcdctl put current.float 1.23 &&
-        etcdctl put current.bool true &&
-        etcdctl put current.int 11 &&
-        etcdctl put current.string hello &&
-        etcdctl put current.serialize.name test &&
-        etcdctl put sub.sub.key1 sub.sub.key
-        "
+      volumes:
+        - type: bind
+          source: ./etcd-data.tmp
+          target: /etcd-data
+      command:
+        - /usr/local/bin/etcd
+        - --name=s1
+        - --data-dir=/etcd-data
+        - --listen-client-urls=http://0.0.0.0:2379
+        - --advertise-client-urls=http://0.0.0.0:2379
+        - --listen-peer-urls=http://0.0.0.0:2380
+        - --initial-advertise-peer-urls=http://0.0.0.0:2380
+        - --initial-cluster=s1=http://0.0.0.0:2380
+        - --initial-cluster-token=tkn
+        - --initial-cluster-state=new
+      healthcheck:
+        test: [ "CMD", "sh", "-c", "ETCDCTL_API=3 etcdctl --endpoints=http://localhost:2379 endpoint health" ]
+
+    etcd-init:
+        image: gcr.io/etcd-development/etcd:v3.4.16
+        depends_on:
+          etcd:
+            condition: service_healthy
+        command:
+          - /bin/sh
+          - -c
+          - |
+            echo "Waiting for etcd to be ready..."
+            until ETCDCTL_API=3 etcdctl --endpoints=http://etcd:2379 endpoint health; do
+              sleep 1
+            done
+            echo "Initializing key-value pairs..."
+            ETCDCTL_API=3 etcdctl --endpoints=http://etcd:2379 put current.float 1.23
+            ETCDCTL_API=3 etcdctl --endpoints=http://etcd:2379 put current.bool true
+            ETCDCTL_API=3 etcdctl --endpoints=http://etcd:2379 put current.int 11
+            ETCDCTL_API=3 etcdctl --endpoints=http://etcd:2379 put current.string hello
+            ETCDCTL_API=3 etcdctl --endpoints=http://etcd:2379 put current.serialize.name test
+            ETCDCTL_API=3 etcdctl --endpoints=http://etcd:2379 put sub.sub.key1 sub.sub.key
+            echo "Initialization complete!"
