@@ -48,7 +48,7 @@ jobs:
       - name: Install Docker on macOS
         if: runner.os == 'macOS'
         run: |
-          brew install docker
+          brew install --cask docker
           brew install docker-compose
           sudo open --background -a docker
           docker --version
