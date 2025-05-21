@@ -44,12 +44,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Docker and Docker Compose on Ubuntu
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker.io docker-compose
-
       - name: Install Docker on macOS
         if: runner.os == 'macOS'
         run: |
@@ -59,10 +53,6 @@ jobs:
         if: runner.os == 'Windows'
         run: |
           choco install docker-desktop
-
-      - name: Start Docker service on Ubuntu
-        if: runner.os == 'Linux'
-        run: sudo service docker start
 
       - name: Start Docker Desktop on macOS
         if: runner.os == 'macOS'
@@ -105,9 +95,6 @@ jobs:
           ORM_SOURCE: root:root@/orm_test?charset=utf8
         run: |
           go test -coverprofile=coverage.txt -covermode=atomic ./...
-
-      - name: Stop Docker Compose
-        run: docker compose -f scripts/ci_test_docker_compose.yaml down
 
       - name: Upload codecov
         env:
