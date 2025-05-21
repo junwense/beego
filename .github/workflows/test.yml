@@ -50,6 +50,7 @@ jobs:
         run: |
           brew install docker
           brew install docker-compose
+          sudo open --background -a Docker
           docker --version
 
       - name: Install Docker on Windows
