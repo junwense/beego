@@ -46,7 +46,7 @@ jobs:
 
       - name: Start Docker Compose
         run: |
-          docker-compose -f ./scripts/ci_test_docker_compose.yaml up -d
+          docker compose -f ./scripts/ci_test_docker_compose.yaml up -d
 
       - name: Run ORM tests on sqlite3
         env:
@@ -75,7 +75,7 @@ jobs:
           go test -coverprofile=coverage.txt -covermode=atomic ./...
 
       - name: Stop Docker Compose
-        run: docker-compose -f ./scripts/ci_test_docker_compose.yaml down
+        run: docker compose -f ./scripts/ci_test_docker_compose.yaml down
 
       - name: Upload codecov
         env:
