@@ -49,7 +49,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install docker
-          sudo open --background -a Docker
+          docker --version
 
       - name: Install Docker on Windows
         if: runner.os == 'Windows'
