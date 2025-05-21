@@ -48,7 +48,7 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install --cask docker
-          open -a Docker
+          open -a Docker.app
           echo "等待 Docker 启动..."
           while ! docker system info > /dev/null 2>&1; do sleep 1; done
 
