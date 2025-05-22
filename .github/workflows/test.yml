@@ -147,7 +147,9 @@ jobs:
     runs-on: [ubuntu-latest, macos-latest,windows-latest,macos-13]
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Set up Go
         uses: actions/setup-go@v5
