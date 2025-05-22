@@ -21,6 +21,7 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 )
 
+// bindataRead reads the given data and decompresses it.
 func bindataRead(data []byte, name string) ([]byte, error) {
 	gz, err := gzip.NewReader(bytes.NewBuffer(data))
 	if err != nil {
