@@ -50,7 +50,7 @@ jobs:
         run: |
           brew install --cask docker
           brew install docker-compose
-          sudo open --background -a docker
+          sudo open --background -a Docker
            # 检查 Docker 是否已启动并可用
           timeout=60
           while ! docker info > /dev/null 2>&1; do
